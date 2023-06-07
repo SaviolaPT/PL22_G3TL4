@@ -3,10 +3,14 @@ import matplotlib.pyplot as plt
 import uncertainties
 from scipy.optimize import curve_fit
 def readtabela(tabela):
-    """_summary_
-
-    Args:
-        file (_type_): _description_
+    """Reads a .txt where each line is in the format: "first entry" "second entry", where the first and
+       second entry are separated by a blank space " ".
+       The first entry corresponds to the time since the measuring started
+       The second entry corresponds to the value registered
+       Returns two lists, one with the values of the first entries, another with the values of the second
+       entries
+       Args:
+       tabela (string): name of the file
     """
     file1=open(tabela, "r")
     texto=file1.readlines()
@@ -17,26 +21,27 @@ def readtabela(tabela):
         Velocidades.append(float(i.split(" ")[1]))
     return Tempos, Velocidades
 def v(t,v0,l,a):
-    """_summary_
+    """maximum velocity at the moment t
 
     Args:
-        t (_type_): _description_
-        v0 (_type_): _description_
-        l (_type_): _description_
-        a (_type_): _description_
+        t (float): time
+        v0 (float): initial velocity
+        l (float): lambda, friction coefficient
+        a (float): friction acceleration
     """
     return v0*np.exp(-t*l)-a*t
 
 
 
-def ajuste(dados,e2):
-    """_summary_
+def ajuste(dados,lim):
+    """Finds the fit for the function v according to the given data.
 
     Args:
-        dados (_type_): _description_
+        dados (string): name of the file with the data
+        lim (list): upper boundaries of the adjust parameters
 
     Returns:
-        _type_: _description_
+        list,list,string: returns a list of the parameters, a list of the uncertainties and the name of the file 
     """
     nome = "{}" .format(dados[:-4])
     
@@ -51,12 +56,12 @@ def ajuste(dados,e2):
     return param,incert,nome
 
 def plot(param,incert,nome):
-    """_summary_
+    """makes a graphic of the adjusted curve
 
     Args:
-        param (_type_): _description_
-        incert (_type_): _description_
-        nome (_type_): _description_
+        param (list): list of the parameters
+        incert (list): list of the uncertainties
+        nome (string): name of the file
     """
     
     t=param[0]
@@ -84,19 +89,24 @@ def plot(param,incert,nome):
     plt.close()        
         
 
-
+## For I=0,10A
 lim=[0.9,0.02,0.08]
 param,incert,nome=ajuste("I010A.txt",lim)
 plot(param,incert,nome)
 
+
+## For I=0,25A
 lim=[0.9,0.09,0.09]
 param,incert,nome=ajuste("I025A.txt",lim)
 plot(param,incert,nome)
 
+## For I=0,35A
 lim=[0.9,0.3,0.09]
 param,incert,nome=ajuste("I035A.txt",lim)
 plot(param,incert,nome)
 
+
+##For I=0,50A
 lim=[0.9,0.33,0.0015]
 param,incert,nome=ajuste("I050A.txt",lim)
 lim=[0.9,0.32,0.0015]
@@ -105,7 +115,7 @@ lim=[0.9,0.33,0.0015]
 param2,incert2,nome2=ajuste("I050A2.txt",lim)
 lim=[0.9,0.33,0.0015]
 param3,incert3,nome3=ajuste("I050A3.txt",lim)
-print(incert1,incert2,incert3)
+
 for i in range(2,len(param)):
     param[i]=(param1[i]+param2[i]+param3[i])/3
     incert[i-2]=np.sqrt(incert1[i-2]**2+incert2[i-2]**2+incert3[i-2]**2)/3
